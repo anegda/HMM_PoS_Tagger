@@ -1,6 +1,5 @@
 import HMM_PoS_Tagger
 import pickle
-from conllu import parse_incr
 
 def conllu_preprocess(file):
     data_file = open(file, "r", encoding="utf-8")
@@ -33,13 +32,17 @@ def main():
     if int(eleccion) == 1:
         print("Training polish model")
         trainCorpus = conllu_preprocess("./Corpus/Polish/pl_lfg-ud-train.conllu")
-        print(trainCorpus)
+        tagger = HMM_PoS_Tagger.HMM_PoS_Tagger()
+        tagger.train(trainCorpus)
+        tagger.save_model("./Models/pl_HMM_PoS_tagger.sav")
         main()
 
     elif int(eleccion) == 2:
         print("Training portuguese model")
         trainCorpus = conllu_preprocess("./Corpus/Portuguese/pt_petrogold-ud-train.conllu")
-        print(trainCorpus)
+        tagger = HMM_PoS_Tagger.HMM_PoS_Tagger()
+        tagger.train(trainCorpus)
+        tagger.save_model("./Models/pt_HMM_PoS_tagger.sav")
         main()
 
     elif int(eleccion) == 3:
