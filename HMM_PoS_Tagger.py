@@ -1,3 +1,5 @@
+import pickle
+
 class HMM_PoS_Tagger:
     def __init__(self):
         self.trans_prob = []
@@ -27,5 +29,8 @@ class HMM_PoS_Tagger:
     def probability(self, pair):
         print("Calculating probability...")
 
-    def save_model(self):
+    def save_model(self, r):
         print("Saving model...")
+        file = open(r, "wb")
+        pickle.dump(self, file)
+        file.close()
