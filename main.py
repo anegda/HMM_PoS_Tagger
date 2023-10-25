@@ -12,9 +12,9 @@ def conllu_preprocess(file):
                 if int(line[0]) == 1:
                     if sentence != []:
                         trainCorpus.append(sentence)
-                    sentence = [(line[1], line[3])]
+                    sentence = [(line[1].lower(), line[3])]
                 else:
-                    sentence.append((line[1], line[3]))
+                    sentence.append((line[1].lower(), line[3]))
     return trainCorpus
 
 def main():
@@ -24,7 +24,8 @@ def main():
             (1) Train polish model 
             (2) Train portuguese model
             (3) Predict Sentence in Polish
-            (4) Exit
+            (4) Predict Sentence in Portuguese
+            (5) Exit
 
         By Ane García, Marcos Merino and Julia Wojciechowska\n''')
 
@@ -55,6 +56,14 @@ def main():
         main()
 
     elif int(eleccion) == 4:
+        sentence = "A caracterização estrutural para a porção"
+        file = open("./Models/pt_HMM_PoS_tagger.sav", "rb")
+        tagger = pickle.load(file)
+        file.close()
+        print(tagger.predict(sentence))
+        main()
+
+    elif int(eleccion) == 5:
         print("EXIT...")
         return
 
