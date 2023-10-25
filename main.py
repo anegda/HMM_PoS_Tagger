@@ -48,7 +48,7 @@ def main():
         main()
 
     elif int(eleccion) == 3:
-        sentence = "Grudziądzem Grudziądzem lewica"
+        sentence = "lewica"
         file = open("./Models/pl_HMM_PoS_tagger.sav", "rb")
         tagger = pickle.load(file)
         file.close()
@@ -56,7 +56,7 @@ def main():
         main()
 
     elif int(eleccion) == 4:
-        sentence = "A caracterização estrutural para a porção"
+        sentence = "a caracterização estrutural para a porção"
         file = open("./Models/pt_HMM_PoS_tagger.sav", "rb")
         tagger = pickle.load(file)
         file.close()
