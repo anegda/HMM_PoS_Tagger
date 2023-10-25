@@ -5,7 +5,7 @@ class HMM_PoS_Tagger:
     def __init__(self):
         ud_pos_tags = ["Start", "ADJ", "ADP", "ADV", "AUX", "CCONJ", "DET", "INTJ", "NOUN", "NUM", "PART", "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "VERB", "X"]
         ud_prev_tags = ["ADJ", "ADP", "ADV", "AUX", "CCONJ", "DET", "INTJ", "NOUN", "NUM", "PART", "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "VERB", "X", "STOP"]
-        self.trans_prob = {tag: {subtag: float('-inf') for subtag in ud_prev_tags} for tag in ud_pos_tags}
+        self.trans_prob = {tag: {subtag: 0.0001 for subtag in ud_prev_tags} for tag in ud_pos_tags}
         self.emis_prob = {}
 
     def train(self, trainCorpus):
@@ -112,7 +112,7 @@ class HMM_PoS_Tagger:
                     probs_act[tag] = bestPreviousProb + emission + transition
 
             bestPreviousProb = np.max(list(probs_act.values()))
-            previousTag = list(probs_act.keys())[np.argmax(probs_act.values())]
+            previousTag = list(probs_act.keys())[np.argmax(list(probs_act.values()))]
             best_path.append((word, previousTag))
 
         return best_path
