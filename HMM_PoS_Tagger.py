@@ -3,7 +3,9 @@ import numpy as np
 import os
 class HMM_PoS_Tagger:
     def __init__(self):
-        self.trans_prob = {}
+        ud_pos_tags = ["Start", "ADJ", "ADP", "ADV", "AUX", "CCONJ", "DET", "INTJ", "NOUN", "NUM", "PART", "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "VERB", "X"]
+        ud_prev_tags = ["ADJ", "ADP", "ADV", "AUX", "CCONJ", "DET", "INTJ", "NOUN", "NUM", "PART", "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "VERB", "X", "STOP"]
+        self.trans_prob = {tag: {subtag: float('-inf') for subtag in ud_prev_tags} for tag in ud_pos_tags}
         self.emis_prob = {}
 
     def train(self, trainCorpus):
@@ -93,12 +95,24 @@ class HMM_PoS_Tagger:
 
             for tag in tags:
                 if tag!="Start":
-                    emision = self.emis_prob[word][tag]
-                    transition = self.trans_prob[previousTag][tag]
-                    probs_act[tag] = bestPreviousProb + emision + transition
+                    # EMISSION PROBABILITIES
+                    if word in self.emis_prob.keys():
+                        if tag in self.emis_prob[word].keys():
+                            emission = self.emis_prob[word][tag]
+                        else:
+                            emission = float('-inf')
+                    else:
+                        if tag in self.emis_prob['UNK'].keys():
+                            emission = self.emis_prob['UNK'][tag]
+                        else:
+                            emission = float('-inf')
 
-            bestPreviousProb = np.min(probs_act.values())
-            previousTag = probs_act.keys()[np.argmin(probs_act.values())]
+                    # TRANSITION PROBABILITIES
+                    transition = self.trans_prob[previousTag][tag]
+                    probs_act[tag] = bestPreviousProb + emission + transition
+
+            bestPreviousProb = np.max(list(probs_act.values()))
+            previousTag = list(probs_act.keys())[np.argmax(probs_act.values())]
             best_path.append((word, previousTag))
 
         return best_path
