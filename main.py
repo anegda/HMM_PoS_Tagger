@@ -23,7 +23,8 @@ def main():
         Enter the number in order to:
             (1) Train polish model 
             (2) Train portuguese model
-            (3) Exit
+            (3) Predict Sentence in Polish
+            (4) Exit
 
         By Ane García, Marcos Merino and Julia Wojciechowska\n''')
 
@@ -46,6 +47,14 @@ def main():
         main()
 
     elif int(eleccion) == 3:
+        sentence = "Grudziądzem Grudziądzem lewica"
+        file = open("./Models/pl_HMM_PoS_tagger.sav", "rb")
+        tagger = pickle.load(file)
+        file.close()
+        print(tagger.predict(sentence))
+        main()
+
+    elif int(eleccion) == 4:
         print("EXIT...")
         return
 

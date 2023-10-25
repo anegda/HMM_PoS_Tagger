@@ -78,7 +78,31 @@ class HMM_PoS_Tagger:
         print('Confusion matrix')
 
     def predict(self, sentence):
-        print("Predicting...")
+        # The prediction of the Hidden Markov Models depend on two assumptions
+        # 1.- Markov assumption: the probability of a particular state only depends on the previous state.
+        # 2.- Output independence: the probability of an output observation depends only on the current state.
+        start = True
+        tags = self.trans_prob.keys()
+        best_path = []
+        for word in sentence.split(" "):
+            probs_act = {}
+            if start:
+                start = False
+                previousTag = "Start"
+                bestPreviousProb = 0
+
+            for tag in tags:
+                if tag!="Start":
+                    emision = self.emis_prob[word][tag]
+                    transition = self.trans_prob[previousTag][tag]
+                    probs_act[tag] = bestPreviousProb + emision + transition
+
+            bestPreviousProb = np.min(probs_act.values())
+            previousTag = probs_act.keys()[np.argmin(probs_act.values())]
+            best_path.append((word, previousTag))
+
+        return best_path
+
 
     def probability(self, pair):
         print("Calculating probability...")
