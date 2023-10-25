@@ -5,6 +5,8 @@ class HMM_PoS_Tagger:
     def __init__(self):
         ud_pos_tags = ["Start", "ADJ", "ADP", "ADV", "AUX", "CCONJ", "DET", "INTJ", "NOUN", "NUM", "PART", "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "VERB", "X"]
         ud_prev_tags = ["ADJ", "ADP", "ADV", "AUX", "CCONJ", "DET", "INTJ", "NOUN", "NUM", "PART", "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "VERB", "X", "STOP"]
+        # Initialization of every transition log-probability to negative infinity
+        # 'Start' tag only present as a previous tag, 'Stop' as a final tag
         self.trans_prob = {tag: {subtag: 0.0001 for subtag in ud_prev_tags} for tag in ud_pos_tags}
         self.emis_prob = {}
 
@@ -31,23 +33,12 @@ class HMM_PoS_Tagger:
                     else:
                         self.emis_prob[word][tag] += 1
 
-                # Transition matrix
-                if prev_tag not in self.trans_prob.keys():
-                    self.trans_prob[prev_tag] = {}
-                    self.trans_prob[prev_tag][tag] = 1
-                else:
-                    if tag not in self.trans_prob[prev_tag].keys():
-                        self.trans_prob[prev_tag][tag] = 1
-                    else:
-                        self.trans_prob[prev_tag][tag] += 1
+                # Transition matrix, check if cell value is negative infinity first
+                self.trans_prob[prev_tag][tag] += 1
                 prev_tag = tag
 
-            # Al acabar la frase añadir la probabilidad de tag terminal
-            if (prev_tag, "Stop") not in self.trans_prob.keys():
-                self.trans_prob[prev_tag] = {}
-                self.trans_prob[prev_tag]["Stop"] = 1
-            else:
-                self.trans_prob[prev_tag]["Stop"] += 1
+            # Add the probability of the tag being terminal to the transition matrix
+            self.trans_prob[prev_tag]["Stop"] += 1
 
         # Change from the count to the log probability of apparitions
         # Emission matrix
@@ -63,6 +54,10 @@ class HMM_PoS_Tagger:
             for tag in self.trans_prob[prev_tag].keys():
                 conteo_tag = self.trans_prob[prev_tag][tag]
                 self.trans_prob[prev_tag][tag] = np.log(conteo_tag / total_apariciones)
+
+        # There are combinations of word-tag that might not appear in the training corpus
+        # To deal with those cases, we must check if the entry exists in the matrices and if not, assign a
+        # negative infinite log-probability
 
     def evaluate(self, testCorpus):
         print("Evaluating...")
