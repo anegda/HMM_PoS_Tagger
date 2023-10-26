@@ -15,6 +15,7 @@ def conllu_preprocess(file):
                     sentence = [(line[1].lower(), line[3])]
                 else:
                     sentence.append((line[1].lower(), line[3]))
+    corpus.append(sentence) 
     return trainCorpus
 
 def main():
