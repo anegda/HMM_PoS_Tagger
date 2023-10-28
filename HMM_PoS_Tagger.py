@@ -8,6 +8,8 @@ from sklearn.metrics import recall_score
 from sklearn.metrics import f1_score
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
+from collections import Counter
+from tabulate import tabulate
 
 class HMM_PoS_Tagger:
     def __init__(self):
@@ -17,7 +19,10 @@ class HMM_PoS_Tagger:
         # 'Start' tag only present as a previous tag, 'Stop' as a final tag
         self.trans_prob = {tag: {subtag: 0.0001 for subtag in ud_prev_tags} for tag in ud_pos_tags}
         self.emis_prob = {}
+        self.multi_word_tokens = {}
 
+    def setMultiTokens(self,multi_word_tokens):
+        self.multi_word_tokens = multi_word_tokens
     def train(self, trainCorpus):
         print("Training...")
 
@@ -68,11 +73,7 @@ class HMM_PoS_Tagger:
         # negative infinite log-probability
 
     def evaluate(self, testCorpus):
-        print("Evaluating...")
-
-    def accuracy(self, testCorpus):
-
-        # Test corpus has the same structure as Train
+        print("Evaluating...\n")
 
         # First, obtain the gold metrics to compare the predictions
         gold_tags = []
@@ -94,154 +95,99 @@ class HMM_PoS_Tagger:
             best_path = self.predict(sentence)
             # The predict method returns a list of tuples word-tag, we just need the tags
             predictions.extend([tag for word, tag in best_path])
+
+        gold_counts = Counter(gold_tags)
+        predictions_counts = Counter(predictions)
+        tags = set(gold_tags).union(set(predictions))
+
+        countsTable = []
+
+        for tag in tags:
+            gold_counts_tag = gold_counts.get(tag, 0)
+            predictions_counts_tag = predictions_counts.get(tag, 0)
+            diff = gold_counts_tag - predictions_counts_tag
+            if diff < 0:
+                diff = abs(diff)
+            countsTable.append([tag, gold_counts_tag, predictions_counts_tag, diff])
+
+        metricsResuts = [["Accuracy",str(self.accuracy(gold_tags, predictions))] , ["Precison",str(self.precision(gold_tags, predictions))], ["Recall",str(self.recall(gold_tags, predictions))],["F1 Score",str(self.f1_score(gold_tags, predictions))]]
+        tableCounts = tabulate(countsTable, ["Tag", "Gold counts", "Prediction counts", "Difference"], tablefmt="grid")
+        tableMetrics = tabulate(metricsResuts, ["Metric", "Score"], tablefmt="grid")
+
+        print("The resoults of the evaluations are:\n")
+        print("Metrics:\n")
+        print(tableMetrics)
+        print("\nCounts' differences:\n")
+        print(tableCounts + "\n")
+
+
+
+
+        self.confusion_matrix(gold_tags, predictions)
+
+    def accuracy(self, gold_tags, predictions):
+
 
         # At this point, both gold and pred are lists of tags
         score = len([1 for x, y in zip(gold_tags, predictions) if x == y])
         total = len(gold_tags)
         acc = accuracy_score(gold_tags, predictions)
 
-        print("GOLD:\t\t", gold_tags)
-        print("PREDICTIONS:", predictions)
-        print("------------------------------------------------")
+
+
+        #print("GOLD:\t\t", gold_tags)
+        #print("PREDICTIONS:", predictions)
+        #print("------------------------------------------------")
         print("SCORE:", score, "/", total)
-        print("ACCURACY:", acc)
+        #print("ACCURACY:", acc)
         return acc
 
-    def precision(self, testCorpus):
-
-        # Test corpus has the same structure as Train
-
-        # First, obtain the gold metrics to compare the predictions
-        gold_tags = []
-        test_sentences = []
-
-        for sent in testCorpus:
-            words = []
-            for pair in sent:
-                gold_tags.append(pair[1])
-                words.append(pair[0])
-            test_sentences.append(" ".join(words))
-
-        # Sentences are in a list of lists
-        # Gold tags are just a list
-
-        # Then, we obtain de predictions of the model using the predict() method
-        predictions = []
-        for sentence in test_sentences:
-            best_path = self.predict(sentence)
-            # The predict method returns a list of tuples word-tag, we just need the tags
-            predictions.extend([tag for word, tag in best_path])
+    def precision(self, gold_tags, predictions):
 
         # At this point, both gold and pred are lists of tags
-        precision = precision_score(gold_tags, predictions, average="micro")
+        precision = precision_score(gold_tags, predictions, average="weighted")
 
-        print("GOLD:\t\t", gold_tags)
-        print("PREDICTIONS:", predictions)
-        print("PRECISION", precision)
+        #print("GOLD:\t\t", gold_tags)
+        #print("PREDICTIONS:", predictions)
+        #print("PRECISION", precision)
         return precision
 
-    def recall(self, testCorpus):
-
-        # Test corpus has the same structure as Train
-
-        # First, obtain the gold metrics to compare the predictions
-        gold_tags = []
-        test_sentences = []
-
-        for sent in testCorpus:
-            words = []
-            for pair in sent:
-                gold_tags.append(pair[1])
-                words.append(pair[0])
-            test_sentences.append(" ".join(words))
-
-        # Sentences are in a list of lists
-        # Gold tags are just a list
-
-        # Then, we obtain de predictions of the model using the predict() method
-        predictions = []
-        for sentence in test_sentences:
-            best_path = self.predict(sentence)
-            # The predict method returns a list of tuples word-tag, we just need the tags
-            predictions.extend([tag for word, tag in best_path])
+    def recall(self, gold_tags, predictions):
 
         # At this point, both gold and pred are lists of tags
-        recall = recall_score(gold_tags, predictions, average="micro")
+        recall = recall_score(gold_tags, predictions, average="weighted")
 
-        print("GOLD:\t\t", gold_tags)
-        print("PREDICTIONS:", predictions)
-        print("RECALL:", recall)
+        #print("GOLD:\t\t", gold_tags)
+        #print("PREDICTIONS:", predictions)
+        #print("RECALL:", recall)
         return recall
 
-    def f1_score(self, testCorpus):
-
-        # Test corpus has the same structure as Train
-
-        # First, obtain the gold metrics to compare the predictions
-        gold_tags = []
-        test_sentences = []
-
-        for sent in testCorpus:
-            words = []
-            for pair in sent:
-                gold_tags.append(pair[1])
-                words.append(pair[0])
-            test_sentences.append(" ".join(words))
-
-        # Sentences are in a list of lists
-        # Gold tags are just a list
-
-        # Then, we obtain de predictions of the model using the predict() method
-        predictions = []
-        for sentence in test_sentences:
-            best_path = self.predict(sentence)
-            # The predict method returns a list of tuples word-tag, we just need the tags
-            predictions.extend([tag for word, tag in best_path])
+    def f1_score(self, gold_tags, predictions):
 
         # At this point, both gold and pred are lists of tags
-        fscore = f1_score(gold_tags, predictions, average="micro")
+        fscore = f1_score(gold_tags, predictions, average="weighted")
 
-        print("GOLD:\t\t", gold_tags)
-        print("PREDICTIONS:", predictions)
-        print("F1_SCORE:", fscore)
+        #print("GOLD:\t\t", gold_tags)
+        #print("PREDICTIONS:", predictions)
+        #print("F1_SCORE:", fscore)
         return fscore
 
-    def confusion_matrix(self, testCorpus):
-        print('Confusion matrix')
-
-        # Test corpus has the same structure as Train
-
-        # First, obtain the gold metrics to compare the predictions
-        gold_tags = []
-        test_sentences = []
-
-        for sent in testCorpus:
-            words = []
-            for pair in sent:
-                gold_tags.append(pair[1])
-                words.append(pair[0])
-            test_sentences.append(" ".join(words))
-
-        # Sentences are in a list of lists
-        # Gold tags are just a list
-
-        # Then, we obtain de predictions of the model using the predict() method
-        predictions = []
-        for sentence in test_sentences:
-            best_path = self.predict(sentence)
-            # The predict method returns a list of tuples word-tag, we just need the tags
-            predictions.extend([tag for word, tag in best_path])
+    def confusion_matrix(self, gold_tags, predictions):
+        #print('Confusion matrix')
 
         # At this point, both gold and pred are lists of tags
         conf_matrix = confusion_matrix(gold_tags, predictions)
 
-        print("GOLD:\t\t", gold_tags)
-        print("PREDICTIONS:", predictions)
-        print("CONFUSION MATRIX:")
-        print(conf_matrix)
+        #print("GOLD:\t\t", gold_tags)
+        #print("PREDICTIONS:", predictions)
+        #print("CONFUSION MATRIX:")
+        #print(conf_matrix)
 
         display = ConfusionMatrixDisplay(confusion_matrix=conf_matrix, display_labels=sorted(set(gold_tags).union(set(predictions))))
-        display.plot()
+        fig, ax = plt.subplots()
+        display.plot(ax=ax)
+        ax.set_xticklabels(display.display_labels, rotation=-45)
+        ax.set_title("Confusion matrix", loc="center")
         plt.show()
 
         return conf_matrix
