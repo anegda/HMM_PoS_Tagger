@@ -26,8 +26,9 @@ def main():
             (2) Train portuguese model
             (3) Predict Sentence in Polish
             (4) Predict Sentence in Portuguese
-            (5) Accuracy score in Portuguese
-            (5) Exit
+            (5) Evaluate Portuguese test
+            (6) Evaluate Polish test
+            (7) Exit
 
         By Ane García, Marcos Merino and Julia Wojciechowska\n''')
 
@@ -77,6 +78,10 @@ def main():
         tagger.recall(testCorpus)
 
     elif int(eleccion) == 6:
+        print("Unimplemented...")
+        return
+
+    elif int(eleccion) == 7:
         print("EXIT...")
         return
 
