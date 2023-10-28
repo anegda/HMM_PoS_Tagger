@@ -26,6 +26,7 @@ def main():
             (2) Train portuguese model
             (3) Predict Sentence in Polish
             (4) Predict Sentence in Portuguese
+            (5) Accuracy score in Portuguese
             (5) Exit
 
         By Ane García, Marcos Merino and Julia Wojciechowska\n''')
@@ -65,6 +66,17 @@ def main():
         main()
 
     elif int(eleccion) == 5:
+        testCorpus = [
+            [("a", "DET"), ("bacia", "PROPN"), ("de", "ADP"), ("pelotas", "PROPN"), ("é", "AUX"), ("a", "DET"),
+                ("mas", "ADV"), ("meridional", "ADJ")],
+            [("a", "DET"), ("caracterização", "NOUN"), ("estrutural", "ADJ"), ("para", "ADP"), ("a", "DET"), ("porção", "NOUN")]
+        ]
+        file = open("./Models/pt_HMM_PoS_tagger.sav", "rb")
+        tagger = pickle.load(file)
+        file.close()
+        tagger.recall(testCorpus)
+
+    elif int(eleccion) == 6:
         print("EXIT...")
         return
 
