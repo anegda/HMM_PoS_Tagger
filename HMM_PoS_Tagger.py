@@ -21,7 +21,7 @@ class HMM_PoS_Tagger:
         self.emis_prob = {}
         self.multi_word_tokens = {}
 
-    def setMultiTokens(self,multi_word_tokens):
+    def setMultiTokensDict(self,multi_word_tokens):
         self.multi_word_tokens = multi_word_tokens
     def train(self, trainCorpus):
         print("Training...")

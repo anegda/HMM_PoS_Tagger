@@ -4,22 +4,34 @@ import pickle
 
 def conllu_preprocess(file):
 
-    data_file = open(file, "r", encoding="utf-8")
     trainCorpus = []
-    corpus = []
     sentence = []
-    for line in data_file:
-        line = line.split('\t')
-        if len(line) > 2:
-            if '-' not in line[0]:
-                if int(line[0]) == 1:
-                    if sentence != []:
-                        trainCorpus.append(sentence)
-                    sentence = [(line[1].lower(), line[3])]
-                else:
-                    sentence.append((line[1].lower(), line[3]))
-    corpus.append(sentence)
-    return trainCorpus
+    multi_token_dict = {}
+
+    with open(file, 'r', encoding="utf-8") as data_file:
+        lines = data_file.readlines()
+        total_lines = len(lines)
+
+        for i, line in enumerate(lines):
+            if i < total_lines - 2:
+                line = line.split('\t')
+                if len(line) > 2:
+                    if '-' not in line[0]:
+                        if int(line[0]) == 1:
+                            if sentence != []:
+                                trainCorpus.append(sentence)
+                            sentence = [(line[1].lower(), line[3])]
+                        else:
+                            sentence.append((line[1].lower(), line[3]))
+                    else:
+                        nextLine1 = lines[i + 1]
+                        nextLine2 = lines[i + 2]
+                        nextLine1 = nextLine1.split('\t')
+                        nextLine2 = nextLine2.split('\t')
+                        multi_token_dict[line[1].lower()] = [nextLine1[1].lower(), nextLine2[1].lower()]
+
+    return trainCorpus, multi_token_dict
+
 
 
 def main():
@@ -40,8 +52,8 @@ def main():
 
     if int(eleccion) == 1:
         print("Training polish model")
-        trainCorpus = conllu_preprocess("./Corpus/Polish/pl_lfg-ud-train.conllu")
-        testCorpus = conllu_preprocess("./Corpus/Polish/pl_lfg-ud-test.conllu")
+        trainCorpus, trainCorpus_multi_tokens = conllu_preprocess("./Corpus/Polish/pl_lfg-ud-train.conllu")
+        testCorpus, trainCorpus_multi_tokens = conllu_preprocess("./Corpus/Polish/pl_lfg-ud-test.conllu")
         tagger = HMM_PoS_Tagger.HMM_PoS_Tagger()
         tagger.train(trainCorpus)
         tagger.save_model("./Models/pl_HMM_PoS_tagger.sav")
@@ -50,11 +62,13 @@ def main():
 
     elif int(eleccion) == 2:
         print("Training portuguese model")
-        trainCorpus = conllu_preprocess("./Corpus/Portuguese/pt_petrogold-ud-train.conllu")
-        testCorpus = conllu_preprocess("./Corpus/Portuguese/pt_petrogold-ud-test.conllu")
+        trainCorpus, trainCorpus_multi_tokens = conllu_preprocess("./Corpus/Portuguese/pt_petrogold-ud-train.conllu")
+        testCorpus, testCorpus_multi_tokens= conllu_preprocess("./Corpus/Portuguese/pt_petrogold-ud-test.conllu")
         tagger = HMM_PoS_Tagger.HMM_PoS_Tagger()
+        tagger.setMultiTokensDict(trainCorpus_multi_tokens)
         tagger.train(trainCorpus)
         tagger.save_model("./Models/pt_HMM_PoS_tagger.sav")
+        print(tagger.multi_word_tokens)
         tagger.evaluate(trainCorpus)
         main()
 
