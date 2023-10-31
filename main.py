@@ -57,7 +57,7 @@ def main():
         tagger = HMM_PoS_Tagger.HMM_PoS_Tagger()
         tagger.train(trainCorpus)
         tagger.save_model("./Models/pl_HMM_PoS_tagger.sav")
-        tagger.evaluate(trainCorpus)
+        tagger.evaluate(testCorpus)
         main()
 
     elif int(eleccion) == 2:
@@ -69,7 +69,7 @@ def main():
         tagger.train(trainCorpus)
         tagger.save_model("./Models/pt_HMM_PoS_tagger.sav")
         print(tagger.multi_word_tokens)
-        tagger.evaluate(trainCorpus)
+        tagger.evaluate(testCorpus)
         main()
 
     elif int(eleccion) == 3:
