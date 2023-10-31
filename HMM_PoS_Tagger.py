@@ -19,14 +19,71 @@ class HMM_PoS_Tagger:
         # 'Start' tag only present as a previous tag, 'Stop' as a final tag
         self.trans_prob = {tag: {subtag: 0.0001 for subtag in ud_prev_tags} for tag in ud_pos_tags}
         self.emis_prob = {}
+        self.suffix_prob = {}
         self.multi_word_tokens = {}
 
     def setMultiTokensDict(self,multi_word_tokens):
         self.multi_word_tokens = multi_word_tokens
-    def train(self, trainCorpus):
+
+    def infrequent_words_to_unk(self, trainCorpus):
+        words_count = {}
+
+        # we calculate the distribution for each word
+        for sentence in trainCorpus:
+            for pair in sentence:
+                if pair[0] in words_count:
+                    words_count[pair[0]] +=1
+                else:
+                    words_count[pair[0]] = 1
+
+
+        # we replace all infrequent words with a single 'UNK' token
+        new_trainCorpus = []
+        for sentence in trainCorpus:
+            new_sentence = []
+            for pair in sentence:
+                if words_count[pair[0]] < 3:
+                    new_sentence.append(('UNK', pair[1]))
+                else:
+                    new_sentence.append(pair)
+            new_trainCorpus.append(new_sentence)
+
+        return new_trainCorpus
+
+    def suffix_matrix(self, trainCorpus):
+        for sentence in trainCorpus:
+            for pair in sentence:
+                if(len(pair[0])>4):
+                    suffix = pair[0][len(pair[0])-4:]
+                    tag = pair[1]
+
+                    # Build the matrix by counting the number of appearances of each suffix and tag
+                    # Suffix matrix
+                    if suffix not in self.suffix_prob.keys():
+                        self.suffix_prob[suffix] = {}
+                        self.suffix_prob[suffix][tag] = 1
+                    else:
+                        if tag not in self.suffix_prob[suffix].keys():
+                            self.suffix_prob[suffix][tag] = 1
+                        else:
+                            self.suffix_prob[suffix][tag] += 1
+
+        # Change from the count to the log probability of apparitions
+        # Suffix matrix
+        for suf in self.suffix_prob.keys():
+            total_apariciones = sum(self.suffix_prob[suf].values())
+            for tag in self.suffix_prob[suf].keys():
+                conteo_tag = self.suffix_prob[suf][tag]
+                self.suffix_prob[suf][tag] = np.log(conteo_tag / total_apariciones)
+
+    def train(self, trainCorpus, suffix = False):
         print("Training...")
 
         # Data is a list of lists (sentences) of tuples word-tag
+        if suffix:
+            self.suffix_matrix(trainCorpus)
+
+        trainCorpus = self.infrequent_words_to_unk(trainCorpus)
 
         for sentence in trainCorpus:
 
@@ -215,10 +272,13 @@ class HMM_PoS_Tagger:
                         else:
                             emission = float('-inf')
                     else:
-                        if tag in self.emis_prob['UNK'].keys():
-                            emission = self.emis_prob['UNK'][tag]
+                        if(self.suffix_prob != {} and len(word)>4) and word[len(word)-4:] in self.suffix_prob.keys() and tag in self.suffix_prob[word[len(word)-4:]].keys():
+                            emission = self.suffix_prob[word[len(word)-4:]][tag]
                         else:
-                            emission = float('-inf')
+                            if tag in self.emis_prob['UNK'].keys():
+                                emission = self.emis_prob['UNK'][tag]
+                            else:
+                                emission = float('-inf')
 
                     # TRANSITION PROBABILITIES
                     transition = self.trans_prob[previousTag][tag]
