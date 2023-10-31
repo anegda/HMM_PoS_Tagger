@@ -25,7 +25,7 @@ class HMM_PoS_Tagger:
     def setMultiTokensDict(self,multi_word_tokens):
         self.multi_word_tokens = multi_word_tokens
 
-    def infrequent_words_to_unk(self, trainCorpus):
+    def infrequent_words_to_unk(self, trainCorpus, unk_value):
         words_count = {}
 
         # we calculate the distribution for each word
@@ -42,7 +42,7 @@ class HMM_PoS_Tagger:
         for sentence in trainCorpus:
             new_sentence = []
             for pair in sentence:
-                if words_count[pair[0]] < 3:
+                if words_count[pair[0]] < unk_value:
                     new_sentence.append(('UNK', pair[1]))
                 else:
                     new_sentence.append(pair)
@@ -76,14 +76,14 @@ class HMM_PoS_Tagger:
                 conteo_tag = self.suffix_prob[suf][tag]
                 self.suffix_prob[suf][tag] = np.log(conteo_tag / total_apariciones)
 
-    def train(self, trainCorpus, suffix = False):
+    def train(self, trainCorpus, suffix = False, unk_value=3):
         print("Training...")
 
         # Data is a list of lists (sentences) of tuples word-tag
         if suffix:
             self.suffix_matrix(trainCorpus)
 
-        trainCorpus = self.infrequent_words_to_unk(trainCorpus)
+        trainCorpus = self.infrequent_words_to_unk(trainCorpus, unk_value=unk_value)
 
         for sentence in trainCorpus:
 
@@ -171,7 +171,7 @@ class HMM_PoS_Tagger:
         tableCounts = tabulate(countsTable, ["Tag", "Gold counts", "Prediction counts", "Difference"], tablefmt="grid")
         tableMetrics = tabulate(metricsResuts, ["Metric", "Score"], tablefmt="grid")
 
-        print("The resoults of the evaluations are:\n")
+        print("The results of the evaluations are:\n")
         print("Metrics:\n")
         print(tableMetrics)
         print("\nCounts' differences:\n")
