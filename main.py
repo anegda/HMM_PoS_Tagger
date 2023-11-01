@@ -28,7 +28,7 @@ def conllu_preprocess(file):
                         nextLine2 = lines[i + 2]
                         nextLine1 = nextLine1.split('\t')
                         nextLine2 = nextLine2.split('\t')
-                        multi_token_dict[line[1].lower()] = [nextLine1[1].lower(), nextLine2[1].lower()]
+                        multi_token_dict[line[1].lower()] = nextLine1[1].lower()+ " " + nextLine2[1].lower()
 
     return trainCorpus, multi_token_dict
 
@@ -83,8 +83,26 @@ def main():
     elif int(eleccion) == 4:
         #a caracterização estrutural para a porção
         sentence = input("Introduce a sentence in Portuguese: ").lower()
+
         file = open("./Models/pt_HMM_PoS_tagger.sav", "rb")
         tagger = pickle.load(file)
+
+        words = sentence.split(" ")
+        mod = False
+
+        for i in range(len(words)):
+            word = words[i]
+            if word in tagger.multi_word_tokens:
+                mod = True
+                print(sentence)
+
+                words[i] = tagger.multi_word_tokens[word]
+
+        if mod == True:
+
+            modSentence = " ".join(words)
+            sentence = modSentence
+
         file.close()
         print(str(tagger.predict(sentence)) + "\n")
         main()
@@ -99,7 +117,8 @@ def main():
         file = open("./Models/pt_HMM_PoS_tagger.sav", "rb")
         tagger = pickle.load(file)
         file.close()
-        tagger.recall(testCorpus)
+        tagger.evaluate(testCorpus)
+
 
     elif int(eleccion) == 6:
         print("Unimplemented...")
