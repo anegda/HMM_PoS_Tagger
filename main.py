@@ -1,5 +1,6 @@
 import HMM_PoS_Tagger
 import pickle
+import re
 
 
 def conllu_preprocess(file):
@@ -103,21 +104,14 @@ def main():
         file = open("./Models/pt_HMM_PoS_tagger.sav", "rb")
         tagger = pickle.load(file)
 
-        words = sentence.split(" ")
-        mod = False
+        words = re.findall(r'\b\w+\b|[.,!?;:()¿¡|]', sentence)
 
         for i in range(len(words)):
             word = words[i]
             if word in tagger.multi_word_tokens:
-                mod = True
-                print(sentence)
-
                 words[i] = tagger.multi_word_tokens[word]
 
-        if mod == True:
-
-            modSentence = " ".join(words)
-            sentence = modSentence
+        sentence = " ".join(words)
 
         file.close()
         print(str(tagger.predict(sentence)) + "\n")
