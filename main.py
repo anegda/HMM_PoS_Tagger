@@ -94,6 +94,9 @@ def main():
         file = open("./Models/pl_HMM_PoS_tagger.sav", "rb")
         tagger = pickle.load(file)
         file.close()
+
+        words = re.findall(r'\b\w+\b|[.,!?;:(){}¿¡|]', sentence)
+        sentence = " ".join(words)
         print(str(tagger.predict(sentence)) + "\n")
         main()
 
@@ -104,7 +107,7 @@ def main():
         file = open("./Models/pt_HMM_PoS_tagger.sav", "rb")
         tagger = pickle.load(file)
 
-        words = re.findall(r'\b\w+\b|[.,!?;:()¿¡|]', sentence)
+        words = re.findall(r'\b\w+\b|[.,!?;:{}"()¿¡|]', sentence)
 
         for i in range(len(words)):
             word = words[i]
