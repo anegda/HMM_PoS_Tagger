@@ -32,7 +32,22 @@ def conllu_preprocess(file):
 
     return trainCorpus, multi_token_dict
 
+def unk_sweep(train_ruta, test_ruta, unk_array):
 
+  for unk in unk_array:
+    # First we obtain the train and test corpus, and the multiword dictionaries for each
+    trainCorpus, trainCorpus_multi_tokens = conllu_preprocess(train_ruta)
+    testCorpus, testCorpus_multi_tokens = conllu_preprocess(test_ruta)
+
+    # Generate and train the model
+    tagger = HMM_PoS_Tagger.HMM_PoS_Tagger()
+    tagger.setMultiTokensDict(trainCorpus_multi_tokens)
+    tagger.train(trainCorpus, unk_value=unk)
+
+    # Evaluate the model
+    print("#### UNK-VALUE:", unk, "####")
+    tagger.evaluate(testCorpus)
+    print("\n")
 
 def main():
     print('''WELCOME TO THE HMM Part of Speech Tagger
@@ -44,7 +59,8 @@ def main():
             (4) Predict Sentence in Portuguese
             (5) Evaluate Portuguese test
             (6) Evaluate Polish test
-            (7) Exit
+            (7) UNK SWEEP for Portuguese
+            (8) Exit
 
         By Ane García, Marcos Merino and Julia Wojciechowska\n''')
 
@@ -57,7 +73,7 @@ def main():
         tagger = HMM_PoS_Tagger.HMM_PoS_Tagger()
         tagger.train(trainCorpus)
         tagger.save_model("./Models/pl_HMM_PoS_tagger.sav")
-        tagger.evaluate(trainCorpus)
+        tagger.evaluate(testCorpus)
         main()
 
     elif int(eleccion) == 2:
@@ -69,7 +85,7 @@ def main():
         tagger.train(trainCorpus)
         tagger.save_model("./Models/pt_HMM_PoS_tagger.sav")
         print(tagger.multi_word_tokens)
-        tagger.evaluate(trainCorpus)
+        tagger.evaluate(testCorpus)
         main()
 
     elif int(eleccion) == 3:
@@ -125,6 +141,14 @@ def main():
         return
 
     elif int(eleccion) == 7:
+        print("UNK SWEEP - Input however many values for the UNK sweep, separated by spaces")
+        unk_array = input().strip().split(" ")
+        unk_array = [int(x) for x in unk_array]
+        unk_sweep("./Corpus/Portuguese/pt_petrogold-ud-train.conllu", "./Corpus/Portuguese/pt_petrogold-ud-test.conllu", unk_array)
+
+        return
+
+    elif int(eleccion) == 8:
         print("Exiting...")
         return
 
