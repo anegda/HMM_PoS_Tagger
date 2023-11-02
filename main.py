@@ -1,6 +1,7 @@
 import HMM_PoS_Tagger
 import pickle
 import re
+import os
 
 
 def conllu_preprocess(file):
@@ -54,53 +55,93 @@ def main():
     print('''WELCOME TO THE HMM Part of Speech Tagger
 
         Enter the number in order to:
-            (1) Train polish model 
-            (2) Train portuguese model
-            (3) Predict Sentence in Polish
-            (4) Predict Sentence in Portuguese
-            (5) Evaluate Portuguese test
-            (6) Evaluate Polish test
-            (7) UNK SWEEP for Portuguese
-            (8) Exit
+            (1) Train a model 
+            (2) Predict Tags for a Sentence in Polish
+            (3) Predict Tags for a Sentence in Portuguese
+            (4) Evaluate a model
+            
+            ----- FUNCTIONS FOR DEVELOPMENT -----
+            (5) UNK SWEEP for Polish
+            (6) UNK SWEEP for Portuguese       
+            -------------------------------------
+            
+            (7) Exit
 
         By Ane García, Marcos Merino and Julia Wojciechowska\n''')
 
     eleccion = input()
 
-    if int(eleccion) == 1:
-        print("Training polish model")
-        trainCorpus, trainCorpus_multi_tokens = conllu_preprocess("./Corpus/Polish/pl_lfg-ud-train.conllu")
-        testCorpus, trainCorpus_multi_tokens = conllu_preprocess("./Corpus/Polish/pl_lfg-ud-test.conllu")
-        tagger = HMM_PoS_Tagger.HMM_PoS_Tagger()
-        tagger.train(trainCorpus)
-        tagger.save_model("./Models/pl_HMM_PoS_tagger.sav")
-        tagger.evaluate(testCorpus)
+    if not eleccion.isdigit() or int(eleccion) > 7:
+        print("Incorrect selection\n\n")
         main()
+
+    elif int(eleccion) == 1:
+        print(''' 
+        Select which model you would like to train:
+            (1) Polish
+            (2) Portuguese
+            (Other) Back
+        ''')
+
+        eleccion = input()
+
+        if int(eleccion) == 1:
+
+            print("Input number of UNK tokens (default: 3)")
+            unks = input()
+            if not unks.isdigit():
+                unks = 3
+
+            print("Value selected:", unks, "\n")
+
+            print("Training Polish model")
+            trainCorpus, trainCorpus_multi_tokens = conllu_preprocess("./Corpus/Polish/pl_lfg-ud-train.conllu")
+            tagger = HMM_PoS_Tagger.HMM_PoS_Tagger()
+            tagger.train(trainCorpus, unk_value=int(unks))
+            if not os.path.exists("./Models"):
+                os.mkdir("./Models")
+            tagger.save_model("./Models/pl_HMM_PoS_tagger.sav")
+            print("Model trained\n")
+            main()
+
+        elif int(eleccion) == 2:
+
+            print("Input number of UNK tokens (default: 3)")
+            unks = input()
+            if not unks.isdigit():
+                unks = 3
+
+            print("Value selected:", unks, "\n")
+            print("Training Portuguese model")
+            trainCorpus, trainCorpus_multi_tokens = conllu_preprocess("./Corpus/Portuguese/pt_petrogold-ud-train.conllu")
+            tagger = HMM_PoS_Tagger.HMM_PoS_Tagger()
+            tagger.setMultiTokensDict(trainCorpus_multi_tokens)
+            tagger.train(trainCorpus, unk_value=int(unks))
+            if not os.path.exists("./Models"):
+                os.mkdir("./Models")
+            tagger.save_model("./Models/pt_HMM_PoS_tagger.sav")
+            print("Model trained\n")
+            main()
+
+        else:
+            print("Going back...\n\n")
+            main()
+
 
     elif int(eleccion) == 2:
-        print("Training portuguese model")
-        trainCorpus, trainCorpus_multi_tokens = conllu_preprocess("./Corpus/Portuguese/pt_petrogold-ud-train.conllu")
-        testCorpus, testCorpus_multi_tokens= conllu_preprocess("./Corpus/Portuguese/pt_petrogold-ud-test.conllu")
-        tagger = HMM_PoS_Tagger.HMM_PoS_Tagger()
-        tagger.setMultiTokensDict(trainCorpus_multi_tokens)
-        tagger.train(trainCorpus)
-        tagger.save_model("./Models/pt_HMM_PoS_tagger.sav")
-        print(tagger.multi_word_tokens)
-        tagger.evaluate(testCorpus)
-        main()
-
-    elif int(eleccion) == 3:
-        sentence = input("Introduce a sentence in Polish: ").lower()
+        sentence = input("Input a sentence in Polish: ").lower()
         file = open("./Models/pl_HMM_PoS_tagger.sav", "rb")
         tagger = pickle.load(file)
         file.close()
 
         words = re.findall(r'\b\w+\b|[.,!?;:(){}¿¡|]', sentence)
         sentence = " ".join(words)
-        print(str(tagger.predict(sentence)) + "\n")
+        print("\nThe predicted sequence of tags is:")
+        print(str(tagger.predict(sentence)) + "\n\n")
         main()
 
-    elif int(eleccion) == 4:
+
+    elif int(eleccion) == 3:
         #a caracterização estrutural para a porção
         sentence = input("Introduce a sentence in Portuguese: ").lower()
 
@@ -117,41 +158,75 @@ def main():
         sentence = " ".join(words)
 
         file.close()
+        print("\nThe predicted sequence of tags is:")
         print(str(tagger.predict(sentence)) + "\n")
         main()
 
+
+    elif int(eleccion) == 4:
+
+        print(''' 
+            Select which model you would like to evaluate:
+                (1) Polish
+                (2) Portuguese
+                (Other) Back
+            ''')
+
+        eleccion = input()
+
+        if int(eleccion) == 1:
+            if os.path.exists("./Models/pl_HMM_PoS_tagger.sav"):
+
+                file = open("./Models/pl_HMM_PoS_tagger.sav", "rb")
+                tagger = pickle.load(file)
+                file.close()
+
+                testCorpus, testCorpus_multi_tokens = conllu_preprocess("./Corpus/Polish/pl_lfg-ud-dev.conllu")
+                tagger.evaluate(testCorpus)
+
+            else:
+                print("No trained model for Polish exists yet. Please train a model first\n\n")
+
+        if int(eleccion) == 2:
+            if os.path.exists("./Models/pt_HMM_PoS_tagger.sav"):
+
+                file = open("./Models/pt_HMM_PoS_tagger.sav", "rb")
+                tagger = pickle.load(file)
+                file.close()
+
+                testCorpus, testCorpus_multi_tokens = conllu_preprocess("./Corpus/Portuguese/pt_petrogold-ud-dev.conllu")
+                tagger.evaluate(testCorpus)
+
+            else:
+                print("No trained model for Portuguese exists yet. Please train a model first\n\n")
+
+        else:
+            print("Going back...\n\n")
+            main()
+
+        main()
+
     elif int(eleccion) == 5:
-        testCorpus = [
-            [("a", "DET"), ("bacia", "PROPN"), ("de", "ADP"), ("pelotas", "PROPN"), ("é", "AUX"), ("a", "DET"),
-             ("mas", "ADV"), ("meridional", "ADJ")],
-            [("a", "DET"), ("caracterização", "NOUN"), ("estrutural", "ADJ"), ("para", "ADP"), ("a", "DET"),
-             ("porção", "NOUN")]
-        ]
-        file = open("./Models/pt_HMM_PoS_tagger.sav", "rb")
-        tagger = pickle.load(file)
-        file.close()
-        tagger.evaluate(testCorpus)
-
-
-    elif int(eleccion) == 6:
-        print("Unimplemented...")
-        return
-
-    elif int(eleccion) == 7:
         print("UNK SWEEP - Input however many values for the UNK sweep, separated by spaces")
         unk_array = input().strip().split(" ")
         unk_array = [int(x) for x in unk_array]
-        unk_sweep("./Corpus/Portuguese/pt_petrogold-ud-train.conllu", "./Corpus/Portuguese/pt_petrogold-ud-test.conllu", unk_array)
+        unk_sweep("./Corpus/Polish/pl_lfg-ud-train.conllu", "./Corpus/Polish/pl_lfg-ud-dev.conllu", unk_array)
 
-        return
+        main()
 
-    elif int(eleccion) == 8:
+
+    elif int(eleccion) == 6:
+        print("UNK SWEEP - Input however many values for the UNK sweep, separated by spaces")
+        unk_array = input().strip().split(" ")
+        unk_array = [int(x) for x in unk_array]
+        unk_sweep("./Corpus/Portuguese/pt_petrogold-ud-train.conllu", "./Corpus/Portuguese/pt_petrogold-ud-dev.conllu", unk_array)
+
+        main()
+
+
+    elif int(eleccion) == 7:
         print("Exiting...")
         return
-
-    else:
-        print("Incorrect selection\n\n")
-        main()
 
 
 if __name__ == "__main__":
