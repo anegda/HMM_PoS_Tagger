@@ -177,26 +177,63 @@ def main():
         if int(eleccion) == 1:
             if os.path.exists("./Models/pl_HMM_PoS_tagger.sav"):
 
-                file = open("./Models/pl_HMM_PoS_tagger.sav", "rb")
-                tagger = pickle.load(file)
-                file.close()
+                print(''' 
+                            Select which an option:
+                                (1) Check metrics' scores.
+                                (2) Check the top 10 sentences with the highest % of incorrect predictions.
+                                (Other) Back
+                            ''')
 
-                testCorpus, testCorpus_multi_tokens = conllu_preprocess("./Corpus/Polish/pl_lfg-ud-dev.conllu")
-                tagger.evaluate(testCorpus)
+                eleccion = input()
 
+                if int(eleccion) == 1:
+
+                    file = open("./Models/pl_HMM_PoS_tagger.sav", "rb")
+                    tagger = pickle.load(file)
+                    file.close()
+
+                    testCorpus, testCorpus_multi_tokens = conllu_preprocess("./Corpus/Polish/pl_lfg-ud-dev.conllu")
+                    tagger.evaluate(testCorpus)
+
+                else:
+                    file = open("./Models/pl_HMM_PoS_tagger.sav", "rb")
+                    tagger = pickle.load(file)
+                    file.close()
+                    testCorpus, testCorpus_multi_tokens = conllu_preprocess("./Corpus/Polish/pl_lfg-ud-test.conllu")
+                    tagger.top10worstPredictions(testCorpus)
+
+                main()
             else:
                 print("No trained model for Polish exists yet. Please train a model first\n\n")
 
         if int(eleccion) == 2:
             if os.path.exists("./Models/pt_HMM_PoS_tagger.sav"):
 
-                file = open("./Models/pt_HMM_PoS_tagger.sav", "rb")
-                tagger = pickle.load(file)
-                file.close()
+                print(''' 
+                                            Select which an option:
+                                                (1) Check metrics' scores.
+                                                (2) Check the top 10 sentences with the highest % of incorrect predictions.
+                                                (Other) Back
+                                            ''')
 
-                testCorpus, testCorpus_multi_tokens = conllu_preprocess("./Corpus/Portuguese/pt_petrogold-ud-dev.conllu")
-                tagger.evaluate(testCorpus)
+                eleccion = input()
 
+                if int(eleccion) == 1:
+                    file = open("./Models/pt_HMM_PoS_tagger.sav", "rb")
+                    tagger = pickle.load(file)
+                    file.close()
+
+                    testCorpus, testCorpus_multi_tokens = conllu_preprocess("./Corpus/Portuguese/pt_petrogold-ud-dev.conllu")
+                    tagger.evaluate(testCorpus)
+
+                else:
+                    file = open("./Models/pt_HMM_PoS_tagger.sav", "rb")
+                    tagger = pickle.load(file)
+                    file.close()
+                    testCorpus, testCorpus_multi_tokens = conllu_preprocess("./Corpus/Portuguese/pt_petrogold-ud-test.conllu")
+                    tagger.top10worstPredictions(testCorpus)
+
+                main()
             else:
                 print("No trained model for Portuguese exists yet. Please train a model first\n\n")
 
