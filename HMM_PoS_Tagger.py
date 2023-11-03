@@ -322,6 +322,24 @@ class HMM_PoS_Tagger:
     def probability(self, pair):
         print("Calculating probability...")
 
+        # Check if pair is either tag-tag or word-tag
+        if pair[0] in self.trans_prob.keys():
+            print("TAG-TAG pair - Transmission probability:", self.trans_prob[pair[0]][pair[1]])
+            return self.trans_prob[pair[0]][pair[1]]
+
+        elif pair[0] in self.emis_prob.keys():
+            print("WORD-TAG pair - Emission probability:", self.emis_prob[pair[0]][pair[1]])
+            return self.emis_prob[pair[0]][pair[1]]
+
+        elif "UNK" in self.emis_prob.keys():   # In case it's neither, consider it an UNK token
+            print("UNK-TAG pair - Emission probability:", self.emis_prob["UNK"][pair[1]])
+            return self.emis_prob["UNK"][pair[1]]
+
+        else:
+            print("Can't find the probability of the input pair")
+            print("Exiting...")
+            return
+
     def save_model(self, r):
         print("Saving model...")
         file = open(r, "wb")
