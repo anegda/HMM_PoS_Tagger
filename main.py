@@ -142,7 +142,6 @@ def main():
 
 
     elif int(eleccion) == 3:
-        #a caracterização estrutural para a porção
         sentence = input("Introduce a sentence in Portuguese: ").lower()
 
         file = open("./Models/pt_HMM_PoS_tagger.sav", "rb")
@@ -192,7 +191,7 @@ def main():
                     tagger = pickle.load(file)
                     file.close()
 
-                    testCorpus, testCorpus_multi_tokens = conllu_preprocess("./Corpus/Polish/pl_lfg-ud-dev.conllu")
+                    testCorpus, testCorpus_multi_tokens = conllu_preprocess("./Corpus/Polish/pl_lfg-ud-test.conllu")
                     tagger.evaluate(testCorpus)
 
                 else:
