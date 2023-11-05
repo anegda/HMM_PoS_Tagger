@@ -87,17 +87,23 @@ def main():
 
         if int(eleccion) == 1:
 
-            print("Input number of UNK tokens (default: 3)")
-            unks = input()
+            unks = input("Input number of UNK tokens (default: 3): ")
             if not unks.isdigit():
+                print("INCORRECT NUMBER USING DEFAULT VALUE INSTEAD... \n")
                 unks = 3
 
             print("Value selected:", unks, "\n")
 
+            suffix = input("Do you want to use the suffix matrix in the training? (y/n) ")
+            suf = False
+            if suffix=='y':
+                print("Suffix matrix option enabled \n")
+                suf = True
+
             print("Training Polish model")
             trainCorpus, trainCorpus_multi_tokens = conllu_preprocess("./Corpus/Polish/pl_lfg-ud-train.conllu")
             tagger = HMM_PoS_Tagger.HMM_PoS_Tagger()
-            tagger.train(trainCorpus, unk_value=int(unks))
+            tagger.train(trainCorpus, unk_value=int(unks), suffix=suf)
             if not os.path.exists("./Models"):
                 os.mkdir("./Models")
             tagger.save_model("./Models/pl_HMM_PoS_tagger.sav")
@@ -106,17 +112,24 @@ def main():
 
         elif int(eleccion) == 2:
 
-            print("Input number of UNK tokens (default: 3)")
-            unks = input()
+            unks = input("Input number of UNK tokens (default: 3): ")
             if not unks.isdigit():
+                print("INCORRECT NUMBER USING DEFAULT VALUE INSTEAD... \n")
                 unks = 3
 
             print("Value selected:", unks, "\n")
+
+            suffix = input("Do you want to use the suffix matrix in the training? (y/n) ")
+            suf = False
+            if suffix == 'y':
+                print("Suffix matrix option enabled \n")
+                suf = True
+
             print("Training Portuguese model")
             trainCorpus, trainCorpus_multi_tokens = conllu_preprocess("./Corpus/Portuguese/pt_petrogold-ud-train.conllu")
             tagger = HMM_PoS_Tagger.HMM_PoS_Tagger()
             tagger.setMultiTokensDict(trainCorpus_multi_tokens)
-            tagger.train(trainCorpus, unk_value=int(unks))
+            tagger.train(trainCorpus, unk_value=int(unks), suffix=suf)
             if not os.path.exists("./Models"):
                 os.mkdir("./Models")
             tagger.save_model("./Models/pt_HMM_PoS_tagger.sav")

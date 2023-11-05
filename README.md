@@ -72,4 +72,13 @@ UD_Portuguese-PetroGold is a fully revised treebank which consists of academic t
 * PRON: isso, se, isto...
 * SCONJ: a, que, pois...
 
-# :desktop_computer: Guide for use
+## :desktop_computer: Guide for use
+The project contains a main.py file that when executed you can access to the principal options of the model: training, prediction of tags for a sentence, evaluation, etc.
+
+* Option 1: training the model. You can decide between the Polish or Portuguese corpus, select the threshold of unknown tokens and enable the use of suffix matrix. After the training the model is automatically saved.
+* Option 2: the user writes a sentence in Polish and the pretrained model tags each word.
+* Option 3: the user writes a sentence in Portuguese and the pretrained model tags each word.
+* Option 4: complete evaluation of the chosen model.
+* Option 5: sweep of the unknown token threshold hyperparameter for Polish corpus.
+* Option 6: sweep of the unknown token threshold hyperparameter for Portuguese corpus.
+* Option 7: exit the program 
