@@ -16898,14 +16898,6 @@
 2	niewiele	niewiele	DET	num:pl:acc:f:rec	Case=Acc|Gender=Fem|Number=Plur|NumType=Card|PronType=Ind	1	nsubj	1:nsubj	DepType=Rec|SpaceAfter=No
 3	.	.	PUNCT	interp	PunctType=Peri	1	punct	1:punct	_
 
-# sent_id = test-1347
-# text = To niewiele.
-# converted_from_file = NKJP1M_6203010000841_morph_2-p_morph_2.58-s-dis@1.xml
-# genre = social
-1	To	to	VERB	pred	Mood=Ind|Tense=Pres|VerbForm=Fin|VerbType=Quasi	0	root	0:root	_
-2	niewiele	niewiele	DET	num:pl:acc:m3:rec	Case=Acc|Gender=Masc|Number=Plur|NumType=Card|PronType=Ind|SubGender=Masc3	1	nsubj	1:nsubj	DepType=Rec|SpaceAfter=No
-3	.	.	PUNCT	interp	PunctType=Peri	1	punct	1:punct	_
-
 # sent_id = test-1348
 # text = To pewnie też był powód, dla którego się za nim wstawiłam u tego Kravaka.
 # converted_from_file = NKJP1M_2004000014_morph_13-p_morph_13.44-s-dis@1.xml
