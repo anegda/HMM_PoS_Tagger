@@ -6,11 +6,17 @@ This repository contains an implementation from scratch of the Hidden Markov Mod
     ├── Polish                                  # Corpus used for Polish PoS task
     │   ├── pl_lfg-ud-dev.conllu
     │   ├── pl_lfg-ud-test.conllu
-    │   └── pl_lfg-ud-train.conllu
-    ├── Polish                                  # Corpus used for Portuguese PoS task
+    │   ├── pl_lfg-ud-train.conllu
+    |   ├── pl_pdb-ud-dev.conllu
+    |   ├── pl_pdb-ud-test.conllu
+    |   └── pl_pdb-ud-train.conllu
+    ├── Portuguese                              # Corpus used for Portuguese PoS task
     │   ├── pt_petrogold-ud-dev.conllu
     │   ├── pt_petrogold-ud-test.conllu
-    └── └── pt_petrogold-ud-train.conllu
+    │   ├── pt_petrogold-ud-train.conllu
+    │   ├── pt_cintil-ud-test.conllu
+    │   ├── pt_cintil-ud-dev.conllu
+    └── └── pt_cintil-ud-train.conllu
 
     Jupyter Notebooks                           # Jupyter notebooks where the experimentation is done
     ├── Experimentation_pl.ipynb
